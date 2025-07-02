@@ -256,7 +256,7 @@ class MultiplePipManager {
       }
     });
 
-    return videos.filter((video) => video.visible);
+    return videos;
   }
 
   isVideoValid(video) {
@@ -267,22 +267,35 @@ class MultiplePipManager {
     const errors = [];
     let successCount = 0;
 
-    console.log("Starting Custom PiP for videos:", videoIds);
+    console.log("Starting PiP for videos:", videoIds);
     console.log("Multiple mode:", multipleMode);
 
-    // Start custom PiP for selected videos
+    // Start PiP for selected videos
     for (let i = 0; i < videoIds.length; i++) {
       try {
         const videoId = videoIds[i];
         const video = this.findVideoById(videoId);
         if (video && this.isVideoValid(video)) {
-          console.log(`Attempting Custom PiP for video ${videoId}`);
-          // Try to start custom PiP for this video
-          await this.startCustomPipForVideo(video, videoId);
-          successCount++;
-          console.log(`Success: Custom PiP started for video ${videoId}`);
+          console.log(`Attempting PiP for video ${videoId}`);
+          // First try native PiP if supported and not in multiple mode beyond browser limit
+          let pipStarted = false;
+          if (!multipleMode || successCount < 1) {
+            try {
+              pipStarted = await this.startNativePipForVideo(video, videoId);
+              console.log(`Native PiP ${pipStarted ? "succeeded" : "failed"} for video ${videoId}`);
+            } catch (nativeError) {
+              console.log(`Native PiP failed for video ${videoId}, falling back to custom:`, nativeError.message);
+            }
+          }
 
-          // Small delay to ensure browser handles multiple custom PiP windows
+          // Fall back to custom PiP if native didn't work or in multiple mode
+          if (!pipStarted) {
+            await this.startCustomPipForVideo(video, videoId);
+            console.log(`Custom PiP started for video ${videoId}`);
+          }
+          successCount++;
+
+          // Small delay to ensure browser handles multiple PiP windows
           await new Promise((resolve) => setTimeout(resolve, 500));
         } else {
           errors.push(`Video ${videoId} not found or invalid`);
@@ -366,11 +379,45 @@ class MultiplePipManager {
       if (videoInfo) {
         videoInfo.isPip = true;
         videoInfo.pipId = pipId;
+        this.pipVideos.add(video);
       }
+
+      // Notify background script
+      chrome.runtime.sendMessage({
+        type: "PIP_STARTED",
+        videoId: videoInfo.id,
+        pipId: pipId,
+        mode: "custom",
+      });
 
       return true;
     } catch (error) {
       throw new Error(`Failed to start Custom Picture-in-Picture: ${error.message}`);
+    }
+  }
+
+  async startNativePipForVideo(video, videoId) {
+    if (!this.isVideoValid(video)) {
+      throw new Error("Video is not ready for Picture-in-Picture");
+    }
+
+    if (video.hasAttribute("__pip__")) {
+      throw new Error("Video is already in Picture-in-Picture mode");
+    }
+
+    try {
+      // Check if native PiP is supported
+      if (!document.pictureInPictureEnabled || video.disablePictureInPicture) {
+        throw new Error("Native Picture-in-Picture is not supported or disabled for this video");
+      }
+
+      // Request native PiP
+      await video.requestPictureInPicture();
+
+      // If successful, the enterpictureinpicture event will handle the rest
+      return true;
+    } catch (error) {
+      throw new Error(`Failed to start Native Picture-in-Picture: ${error.message}`);
     }
   }
 
@@ -403,6 +450,16 @@ class MultiplePipManager {
 
   async stopAllPictureInPicture() {
     let stoppedCount = 0;
+
+    // Exit native PiP if active
+    if (document.pictureInPictureElement) {
+      try {
+        await document.exitPictureInPicture();
+        stoppedCount++;
+      } catch (error) {
+        console.error("Error exiting native PiP:", error);
+      }
+    }
 
     // Remove PiP attributes from all videos
     const pipVideos = document.querySelectorAll("video[__pip__]");
