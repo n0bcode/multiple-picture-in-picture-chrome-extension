@@ -1,7 +1,7 @@
 {
-  "name": "Picture-in-Picture Extension (by Google)",
-  "description": "Watch video using Picture-in-Picture",
-  "version": "1.14",
+  "name": "Multiple Picture-in-Picture Extension",
+  "description": "Watch multiple videos using Picture-in-Picture simultaneously",
+  "version": "2.0",
   "icons": {
     "128": "assets/icon128.png"
   },
@@ -12,7 +12,8 @@
     "default_icon": {
       "19": "assets/icon19.png",
       "38": "assets/icon38.png"
-    }
+    },
+    "default_popup": "popup.html"
   },
   "commands": {
     "_execute_action": {
@@ -22,15 +23,31 @@
         "chromeos": "Alt+P",
         "linux": "Alt+P"
       }
+    },
+    "toggle_multiple_pip": {
+      "suggested_key": {
+        "windows": "Alt+M",
+        "mac": "Alt+M",
+        "chromeos": "Alt+M",
+        "linux": "Alt+M"
+      },
+      "description": "Toggle multiple picture-in-picture mode"
     }
   },
-  "permissions": [
-    "contextMenus",
-    "scripting",
-    "storage"
+  "permissions": ["contextMenus", "scripting", "storage", "activeTab", "tabs"],
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["multiplePip.js", "script.js"],
+      "css": []
+    }
   ],
-  "host_permissions": [
-    "<all_urls>"
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": ["<all_urls>"]
+    }
   ],
   "manifest_version": 3
 }

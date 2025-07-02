@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        width: 350px;
+        padding: 16px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 14px;
+        margin: 0;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .header img {
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .mode-toggle {
+        margin-bottom: 16px;
+      }
+
+      .toggle-switch {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 24px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: #4285f4;
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(20px);
+      }
+
+      .video-list {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .video-item {
+        display: flex;
+        align-items: center;
+        padding: 8px;
+        margin-bottom: 8px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .video-item:hover {
+        background-color: #f5f5f5;
+      }
+
+      .video-item.selected {
+        background-color: #e3f2fd;
+        border-color: #4285f4;
+      }
+
+      .video-checkbox {
+        margin-right: 8px;
+      }
+
+      .video-info {
+        flex: 1;
+      }
+
+      .video-title {
+        font-weight: 500;
+        margin-bottom: 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .video-details {
+        font-size: 12px;
+        color: #666;
+      }
+
+      .video-thumbnail {
+        width: 60px;
+        height: 34px;
+        background-color: #000;
+        border-radius: 4px;
+        margin-left: 8px;
+        object-fit: cover;
+      }
+
+      .controls {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #e0e0e0;
+      }
+
+      .button {
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 8px;
+        transition: background-color 0.2s;
+      }
+
+      .button:hover {
+        background-color: #3367d6;
+      }
+
+      .button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      .button.secondary {
+        background-color: #f8f9fa;
+        color: #5f6368;
+        border: 1px solid #dadce0;
+      }
+
+      .button.secondary:hover {
+        background-color: #f1f3f4;
+      }
+
+      .status {
+        margin-top: 12px;
+        padding: 8px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+
+      .status.success {
+        background-color: #e8f5e8;
+        color: #137333;
+      }
+
+      .status.error {
+        background-color: #fce8e6;
+        color: #d93025;
+      }
+
+      .status.info {
+        background-color: #e3f2fd;
+        color: #1565c0;
+      }
+
+      .no-videos {
+        text-align: center;
+        color: #666;
+        padding: 32px 16px;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 16px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <img src="assets/icon38.png" alt="Icon" />
+      <h1>Multiple Picture-in-Picture</h1>
+    </div>
+
+    <div class="mode-toggle">
+      <div class="toggle-switch">
+        <span>Multiple PiP Mode</span>
+        <label class="switch">
+          <input type="checkbox" id="multipleMode" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div id="videoSection">
+      <div class="loading" id="loading">Scanning for videos...</div>
+
+      <div class="video-list" id="videoList" style="display: none">
+        <!-- Videos will be populated here -->
+      </div>
+
+      <div class="no-videos" id="noVideos" style="display: none">
+        <p>No videos found on this page</p>
+        <p style="font-size: 12px; color: #999">Make sure videos are playing and support Picture-in-Picture</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="button" id="startPip" disabled>Start PiP</button>
+      <button class="button secondary" id="stopAllPip">Stop All</button>
+      <button class="button secondary" id="refreshVideos">Refresh</button>
+    </div>
+
+    <div id="status" class="status" style="display: none"></div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

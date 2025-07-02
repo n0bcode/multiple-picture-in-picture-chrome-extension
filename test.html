@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiple Picture-in-Picture Test Page</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+      }
+
+      .video-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .video-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+      }
+
+      .video-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .video-card h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+        font-size: 16px;
+      }
+
+      .video-card video {
+        width: 100%;
+        border-radius: 8px;
+        background: #000;
+      }
+
+      .video-info {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #666;
+      }
+
+      .instructions {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .instructions h2 {
+        color: #333;
+        margin-top: 0;
+      }
+
+      .instructions ol {
+        color: #555;
+      }
+
+      .instructions li {
+        margin-bottom: 8px;
+      }
+
+      .keyboard-shortcuts {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+      }
+
+      .keyboard-shortcuts h4 {
+        margin: 0 0 10px 0;
+        color: #1565c0;
+      }
+
+      .shortcut {
+        display: inline-block;
+        background: #1976d2;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        margin-right: 10px;
+      }
+
+      .controls {
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .btn {
+        background: #4285f4;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 0 5px;
+        font-size: 14px;
+      }
+
+      .btn:hover {
+        background: #3367d6;
+      }
+
+      .btn.secondary {
+        background: #6c757d;
+      }
+
+      .btn.secondary:hover {
+        background: #5a6268;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🎥 Multiple Picture-in-Picture Test Page</h1>
+      <p>Test the Multiple Picture-in-Picture Chrome Extension with these sample videos</p>
+    </div>
+
+    <div class="instructions">
+      <h2>📋 How to Test</h2>
+      <ol>
+        <li><strong>Install the extension</strong> by loading the <code>src</code> folder as an unpacked extension</li>
+        <li><strong>Play some videos</strong> below by clicking the play buttons</li>
+        <li><strong>Click the extension icon</strong> in the toolbar to open the popup</li>
+        <li><strong>Toggle "Multiple PiP Mode"</strong> to enable multiple video selection</li>
+        <li><strong>Select videos</strong> you want to watch in Picture-in-Picture</li>
+        <li><strong>Click "Start PiP"</strong> to launch multiple floating windows</li>
+      </ol>
+
+      <div class="keyboard-shortcuts">
+        <h4>⌨️ Keyboard Shortcuts</h4>
+        <span class="shortcut">Alt+P</span> Quick single PiP (largest video)<br />
+        <span class="shortcut">Alt+M</span> Toggle multiple PiP mode
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="playAllVideos()">▶️ Play All Videos</button>
+      <button class="btn secondary" onclick="pauseAllVideos()">⏸️ Pause All Videos</button>
+      <button class="btn secondary" onclick="muteAllVideos()">🔇 Mute All Videos</button>
+    </div>
+
+    <div class="video-grid">
+      <div class="video-card">
+        <h3>🎬 Sample Video 1 - Big Buck Bunny</h3>
+        <video controls preload="metadata" title="Big Buck Bunny - Sample Video 1">
+          <source
+            src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+            type="video/mp4"
+          />
+          <p>Your browser doesn't support HTML5 video.</p>
+        </video>
+        <div class="video-info">Duration: ~10 minutes | Resolution: 1280x720 | Format: MP4</div>
+      </div>
+
+      <div class="video-card">
+        <h3>🐘 Sample Video 2 - Elephant Dream</h3>
+        <video controls preload="metadata" title="Elephant Dream - Sample Video 2">
+          <source
+            src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+            type="video/mp4"
+          />
+          <p>Your browser doesn't support HTML5 video.</p>
+        </video>
+        <div class="video-info">Duration: ~11 minutes | Resolution: 1280x720 | Format: MP4</div>
+      </div>
+
+      <div class="video-card">
+        <h3>🌸 Sample Video 3 - For Bigger Blazes</h3>
+        <video controls preload="metadata" title="For Bigger Blazes - Sample Video 3">
+          <source
+            src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+            type="video/mp4"
+          />
+          <p>Your browser doesn't support HTML5 video.</p>
+        </video>
+        <div class="video-info">Duration: ~15 seconds | Resolution: 1280x720 | Format: MP4</div>
+      </div>
+
+      <div class="video-card">
+        <h3>🎭 Sample Video 4 - For Bigger Escape</h3>
+        <video controls preload="metadata" title="For Bigger Escape - Sample Video 4">
+          <source
+            src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+            type="video/mp4"
+          />
+          <p>Your browser doesn't support HTML5 video.</p>
+        </video>
+        <div class="video-info">Duration: ~15 seconds | Resolution: 1280x720 | Format: MP4</div>
+      </div>
+
+      <div class="video-card">
+        <h3>🎪 Sample Video 5 - For Bigger Fun</h3>
+        <video controls preload="metadata" title="For Bigger Fun - Sample Video 5">
+          <source
+            src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+            type="video/mp4"
+          />
+          <p>Your browser doesn't support HTML5 video.</p>
+        </video>
+        <div class="video-info">Duration: ~60 seconds | Resolution: 1280x720 | Format: MP4</div>
+      </div>
+
+      <div class="video-card">
+        <h3>😂 Sample Video 6 - For Bigger Joyrides</h3>
+        <video controls preload="metadata" title="For Bigger Joyrides - Sample Video 6">
+          <source
+            src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+            type="video/mp4"
+          />
+          <p>Your browser doesn't support HTML5 video.</p>
+        </video>
+        <div class="video-info">Duration: ~15 seconds | Resolution: 1280x720 | Format: MP4</div>
+      </div>
+    </div>
+
+    <div class="instructions">
+      <h2>🔧 Testing Features</h2>
+      <ul>
+        <li><strong>Single Mode:</strong> Disable "Multiple PiP Mode" and select one video at a time</li>
+        <li><strong>Multiple Mode:</strong> Enable "Multiple PiP Mode" and select multiple videos</li>
+        <li><strong>Auto PiP:</strong> Toggle in context menu (right-click extension icon)</li>
+        <li><strong>Keyboard Shortcuts:</strong> Use Alt+P for quick PiP, Alt+M to toggle mode</li>
+        <li><strong>Video Detection:</strong> Extension should detect all playing videos automatically</li>
+        <li><strong>Thumbnails:</strong> Popup should show video thumbnails and metadata</li>
+      </ul>
+    </div>
+
+    <script>
+      function playAllVideos() {
+        const videos = document.querySelectorAll("video");
+        videos.forEach((video) => {
+          video.play().catch((e) => console.log("Auto-play prevented for:", video.title));
+        });
+      }
+
+      function pauseAllVideos() {
+        const videos = document.querySelectorAll("video");
+        videos.forEach((video) => video.pause());
+      }
+
+      function muteAllVideos() {
+        const videos = document.querySelectorAll("video");
+        videos.forEach((video) => {
+          video.muted = !video.muted;
+        });
+
+        const btn = event.target;
+        btn.textContent = videos[0].muted ? "🔊 Unmute All Videos" : "🔇 Mute All Videos";
+      }
+
+      // Add some dynamic content to test video detection
+      let dynamicVideoCount = 0;
+
+      function addDynamicVideo() {
+        dynamicVideoCount++;
+        const videoGrid = document.querySelector(".video-grid");
+        const videoCard = document.createElement("div");
+        videoCard.className = "video-card";
+        videoCard.innerHTML = `
+                <h3>🆕 Dynamic Video ${dynamicVideoCount}</h3>
+                <video controls preload="metadata" title="Dynamic Video ${dynamicVideoCount}">
+                    <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" type="video/mp4">
+                    <p>Your browser doesn't support HTML5 video.</p>
+                </video>
+                <div class="video-info">
+                    Dynamically added video | Duration: ~15 seconds
+                </div>
+            `;
+        videoGrid.appendChild(videoCard);
+      }
+
+      // Add a button to test dynamic video detection
+      const controls = document.querySelector(".controls");
+      const dynamicBtn = document.createElement("button");
+      dynamicBtn.className = "btn secondary";
+      dynamicBtn.textContent = "➕ Add Dynamic Video";
+      dynamicBtn.onclick = addDynamicVideo;
+      controls.appendChild(dynamicBtn);
+
+      // Log video events for debugging
+      document.addEventListener(
+        "play",
+        (e) => {
+          if (e.target.tagName === "VIDEO") {
+            console.log("Video started playing:", e.target.title || "Untitled");
+          }
+        },
+        true
+      );
+
+      document.addEventListener(
+        "pause",
+        (e) => {
+          if (e.target.tagName === "VIDEO") {
+            console.log("Video paused:", e.target.title || "Untitled");
+          }
+        },
+        true
+      );
+
+      // Test Picture-in-Picture events
+      document.addEventListener("enterpictureinpicture", (e) => {
+        console.log("Video entered PiP:", e.target.title || "Untitled");
+      });
+
+      document.addEventListener("leavepictureinpicture", (e) => {
+        console.log("Video left PiP:", e.target.title || "Untitled");
+      });
+    </script>
+  </body>
+</html>
