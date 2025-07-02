@@ -162,6 +162,9 @@ class MultiplePipManager {
 
   handleMessage(message, sender, sendResponse) {
     switch (message.type) {
+      case "CHECK_CONTENT_SCRIPT_READY":
+        sendResponse({ isReady: true });
+        break;
       case "SCAN_VIDEOS":
         this.scanForVideos();
         const videoList = this.getVideoList();

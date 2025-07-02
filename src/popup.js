@@ -84,7 +84,27 @@ class MultiplePipPopup {
     try {
       const tab = await this.getCurrentTab();
 
-      // Send message to content script to scan for videos instead of direct execution
+      // First, check if content script is ready
+      let isReady = false;
+      try {
+        const readyResponse = await chrome.tabs.sendMessage(tab.id, {
+          type: "CHECK_CONTENT_SCRIPT_READY",
+        });
+        if (readyResponse && readyResponse.isReady) {
+          isReady = true;
+        }
+      } catch (e) {
+        console.error("Content script readiness check failed:", e);
+      }
+
+      if (!isReady) {
+        this.showStatus("Content script not ready. Please refresh the page.", "error");
+        this.showNoVideos();
+        this.showLoading(false);
+        return;
+      }
+
+      // Send message to content script to scan for videos
       const response = await chrome.tabs.sendMessage(tab.id, {
         type: "SCAN_VIDEOS",
       });
@@ -272,17 +292,17 @@ class MultiplePipPopup {
   }
 
   updateStartButton() {
-    // Enable the button if videos are detected, even if none are selected
+    // Enable the button if videos are detected
     const hasVideos = this.videos.length > 0;
     this.elements.startPip.disabled = !hasVideos;
 
-    if (this.selectedVideos.size > 0) {
-      const count = this.selectedVideos.size;
+    // Always update the button text to reflect the number of selected videos
+    const count = this.selectedVideos.size;
+    if (count > 0) {
       this.elements.startPip.textContent = `Start PiP (${count})`;
     } else {
       this.elements.startPip.textContent = "Start PiP";
     }
-    this.elements.startPip.disabled = false;
   }
 
   async startPictureInPicture() {
