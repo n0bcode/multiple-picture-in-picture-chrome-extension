@@ -332,46 +332,26 @@ class MultiplePipManager {
     }
 
     try {
-      // Create a custom popup window for PiP
+      // Create a custom popup window for PiP using a new browser window
       const videoInfo = this.videos.get(video);
       const pipId = `pip_${videoInfo.index}_${Date.now()}`;
       const videoSrc = video.currentSrc || video.src;
 
-      // Create an iframe to display the video
-      const iframe = document.createElement("iframe");
-      iframe.src = videoSrc;
-      iframe.width = "320";
-      iframe.height = "240";
-      iframe.style.border = "none";
+      // Get the URL for the pipWindow.html within the extension
+      const pipWindowUrl = chrome.runtime.getURL("pipWindow.html");
+      const windowUrl = `${pipWindowUrl}?src=${encodeURIComponent(videoSrc)}&videoId=${encodeURIComponent(
+        videoInfo.id
+      )}`;
 
-      // Create a container div for the iframe
-      const container = document.createElement("div");
-      container.id = pipId;
-      container.style.position = "fixed";
-      container.style.bottom = "20px";
-      container.style.right = `${20 + this.customPipWindows.size * 340}px`;
-      container.style.zIndex = "9999";
-      container.style.backgroundColor = "#000";
-      container.style.border = "1px solid #fff";
-      container.style.padding = "5px";
-      container.appendChild(iframe);
-
-      // Add a close button
-      const closeButton = document.createElement("button");
-      closeButton.textContent = "Close";
-      closeButton.style.position = "absolute";
-      closeButton.style.top = "5px";
-      closeButton.style.right = "5px";
-      closeButton.style.backgroundColor = "red";
-      closeButton.style.color = "white";
-      closeButton.style.border = "none";
-      closeButton.style.cursor = "pointer";
-      closeButton.onclick = () => this.closeCustomPip(pipId);
-      container.appendChild(closeButton);
-
-      // Add to document
-      document.body.appendChild(container);
-      this.customPipWindows.set(pipId, { videoId, container });
+      // Create a new browser window for the video
+      chrome.runtime.sendMessage({
+        type: "CREATE_PIP_WINDOW",
+        url: windowUrl,
+        width: 320,
+        height: 240,
+        pipId: pipId,
+        videoId: videoInfo.id,
+      });
 
       // Mark video as PiP
       video.setAttribute("__pip__", "true");
@@ -381,6 +361,9 @@ class MultiplePipManager {
         videoInfo.pipId = pipId;
         this.pipVideos.add(video);
       }
+
+      // Store the pipId in customPipWindows for tracking
+      this.customPipWindows.set(pipId, { videoId, window: true });
 
       // Notify background script
       chrome.runtime.sendMessage({
@@ -424,10 +407,12 @@ class MultiplePipManager {
   closeCustomPip(pipId) {
     const pipWindow = this.customPipWindows.get(pipId);
     if (pipWindow) {
-      const container = pipWindow.container;
-      if (container && container.parentNode) {
-        container.parentNode.removeChild(container);
-      }
+      // Since it's a separate window, we can't close it directly from content script
+      // Instead, notify background to handle any cleanup if needed
+      chrome.runtime.sendMessage({
+        type: "CLOSE_PIP_WINDOW",
+        pipId: pipId,
+      });
       this.customPipWindows.delete(pipId);
 
       // Update video attributes

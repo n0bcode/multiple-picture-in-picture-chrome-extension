@@ -245,5 +245,31 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const count = activePipWindows.has(sender.tab.id) ? activePipWindows.get(sender.tab.id).size : 0;
       sendResponse({ count });
       break;
+
+    case "CREATE_PIP_WINDOW":
+      // Create a new browser window for PiP, attempting to make it float on top
+      chrome.windows.create(
+        {
+          url: message.url,
+          type: "popup",
+          width: message.width || 320,
+          height: message.height || 240,
+          focused: true,
+          left: Math.round(window.screenX + (window.screen.availWidth - (message.width || 320)) / 2),
+          top: Math.round(window.screenY + (window.screen.availHeight - (message.height || 240)) / 2),
+        },
+        (window) => {
+          console.log(`Created PiP window with ID ${window.id} for video ${message.videoId}`);
+          // Attempt to make the window always on top if the API supports it
+          chrome.windows.update(window.id, { alwaysOnTop: true }, (updatedWindow) => {
+            if (chrome.runtime.lastError) {
+              console.error("Failed to set always on top:", chrome.runtime.lastError.message);
+            } else {
+              console.log(`Set PiP window ${updatedWindow.id} to always on top`);
+            }
+          });
+        }
+      );
+      break;
   }
 });
