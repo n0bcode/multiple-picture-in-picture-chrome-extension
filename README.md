@@ -143,3 +143,11 @@ Licensed under the Apache License, Version 2.0. See LICENSE file for details.
 
 Based on the original Picture-in-Picture Chrome Extension by Google.
 Enhanced with multiple video support and advanced features.
+
+## 🦊 This extension so issue
+
+Then just install [Firefox Browser](https://www.mozilla.org/).
+It supports Multiple PiP (PiPs).
+
+And..
+__Thanks for your attention__
